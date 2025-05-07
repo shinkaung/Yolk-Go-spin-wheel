@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yolk & Go - Spin the Wheel!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Montserrat', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    .header {
+      width: 100%;
+      padding: 24px 0;
+      text-align: center;
+      background-color: rgba(255, 251, 230, 0.9);
+      box-shadow: 0 4px 20px rgba(249, 171, 0, 0.1);
+    }
+    
+    h1 {
+      color: #F9AB00;
+      font-size: 2.8rem;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px rgba(254, 221, 88, 0.6);
+      margin: 0;
+    }
+    
+    .main-container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+    
+    .content-wrapper {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    
+    .wheel-container {
+      position: relative;
+      width: 560px;
+      height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 10px 25px rgba(249, 171, 0, 0.2));
+      margin: 20px;
+    }
+    
+    .wheel-border {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 10px solid #F9AB00;
+      box-shadow: 0 0 0 4px #fff, inset 0 0 0 4px #fff;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    .pointer {
+      position: absolute;
+      top: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; 
+      height: 0; 
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+      border-bottom: 45px solid #F9AB00;
+      z-index: 2;
+      filter: drop-shadow(0 4px 8px rgba(254, 221, 88, 0.6));
+    }
+    
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      min-width: 300px;
+      max-width: 400px;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(249, 171, 0, 0.1);
+    }
+    
+    .settings-panel {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 15px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    label {
+      font-weight: 600;
+      color: #343434;
+      font-size: 1rem;
+    }
+    
+    input, textarea {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid #eee;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #F9AB00;
+      box-shadow: 0 0 0 3px rgba(249, 171, 0, 0.2);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 140px;
+    }
+    
+    .spin-btn {
+      background: linear-gradient(90deg, #F9AB00 0%, #FEDD58 100%);
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 15px;
+      padding: 16px 32px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(249, 171, 0, 0.25);
+      margin-top: 25px;
+      transition: all 0.3s ease;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    
+    .spin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(249, 171, 0, 0.35);
+    }
+    
+    .spin-btn:active {
+      background: #FEDD58;
+      color: #F9AB00;
+      transform: translateY(1px);
+      box-shadow: 0 4px 15px rgba(249, 171, 0, 0.2);
+    }
+    
+    .result {
+      margin-top: 24px;
+      font-size: 1.6rem;
+      color: #F9AB00;
+      font-weight: bold;
+      min-height: 40px;
+      text-align: center;
+      letter-spacing: 0.5px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      background-color: rgba(255, 252, 232, 0.9);
+      border: 2px dashed #FEDD58;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    
+    .show-result {
+      opacity: 1;
+    }
+    
+    .message {
+      color: #777;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 15px;
+      font-style: italic;
+    }
+
+    @media (max-width: 1100px) {
+      .content-wrapper {
+        flex-direction: column;
+      }
+      
+      .wheel-container {
+        width: 480px;
+        height: 480px;
+      }
+    }
+    
+    @media (max-width: 560px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .wheel-container {
+        width: 320px;
+        height: 320px;
+      }
+      
+      .pointer {
+        top: -35px;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-bottom: 35px solid #F9AB00;
+      }
+      
+      .controls-container {
+        padding: 20px;
+        min-width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Spin the Yolk & Go Wheel!</h1>
+  </div>
+  
+  <div class="main-container">
+    <div class="content-wrapper">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <div class="wheel-border"></div>
+        <svg id="wheel" width="600" height="600" viewBox="0 0 600 600" style="z-index:1; border-radius:50%;"></svg>
+      </div>
+      
+      <div class="controls-container">
+        <div class="settings-panel">
+          <div class="form-group">
+            <label for="nameInput">Number of Slices:</label>
+            <input id="nameInput" type="number" min="2" max="50" value="6">
+          </div>
+          
+          <div class="form-group">
+            <label for="prizeNames">Prize Names (one per line):</label>
+            <textarea id="prizeNames" rows="6" placeholder="Enter your prizes here..."></textarea>
+          </div>
+          
+          <button class="spin-btn" id="spinBtn">
+            <i class="fas fa-sync-alt"></i>
+            SPIN
+          </button>
+        </div>
+        
+        <div class="result" id="result"></div>
+        <div class="message">Add your own prizes or use our defaults!</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let prizes = [
+      "1 Free Egg Tray",
+      "10% Off Next Purchase",
+      "Yolk & Go Tote Bag",
+      "Try Again!",
+      "2 Free Egg Trays",
+      "Exclusive Recipe eBook"
+    ];
+
+    // Brand color palette
+    const brandColors = ["#F9AB00", "#F77925", "#FEDD58", "#343434"];
+    const borderColor = "#F9AB00";
+    const textColor = "#343434";
+    const wheel = document.getElementById('wheel');
+    const size = 600;
+    const center = size / 2;
+    const radius = center - 10;
+    let numPrizes = prizes.length;
+
+    function getColors(n) {
+      // Use a visually appealing pattern from the brand colors
+      const palette = [brandColors[0], brandColors[1], brandColors[2], brandColors[0], brandColors[1], brandColors[3]];
+      let arr = [];
+      for (let i = 0; i < n; i++) {
+        arr.push(palette[i % palette.length]);
+      }
+      return arr;
+    }
+
+    function getDefaultPrizes(n) {
+      // Default prize names for dynamic slices
+      const base = [
+        "1 Free Egg Tray",
+        "10% Off Next Purchase",
+        "Yolk & Go Tote Bag",
+        "Try Again!",
+        "2 Free Egg Trays",
+        "Exclusive Recipe eBook",
+        "Mystery Prize",
+        "Golden Ticket",
+        "Bonus Spin",
+        "Egg-cellent Surprise"
+      ];
+      let arr = [];
+      for (let i = 0; i < n; i++) {
+        arr.push(base[i % base.length]);
+      }
+      return arr;
+    }
+
+    function drawWheel(rotation = 0) {
+      wheel.innerHTML = '';
+      const colors = getColors(numPrizes);
+      // Draw slices
+      for (let i = 0; i < numPrizes; i++) {
+        const startAngle = ((360 / numPrizes) * i - 90 + rotation) * Math.PI / 180;
+        const endAngle = ((360 / numPrizes) * (i + 1) - 90 + rotation) * Math.PI / 180;
+        const x1 = center + radius * Math.cos(startAngle);
+        const y1 = center + radius * Math.sin(startAngle);
+        const x2 = center + radius * Math.cos(endAngle);
+        const y2 = center + radius * Math.sin(endAngle);
+
+        const largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
+        const pathData = [
+          `M ${center} ${center}`,
+          `L ${x1} ${y1}`,
+          `A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
+          'Z'
+        ].join(' ');
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', colors[i % colors.length]);
+        path.setAttribute('stroke', borderColor);
+        path.setAttribute('stroke-width', 2);
+        wheel.appendChild(path);
+
+        // Add label
+        const midAngle = (startAngle + endAngle) / 2;
+        const labelRadius = radius * 0.75;
+        const lx = center + labelRadius * Math.cos(midAngle);
+        const ly = center + labelRadius * Math.sin(midAngle);
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute('x', lx);
+        text.setAttribute('y', ly);
+        text.setAttribute('fill', (colors[i % colors.length] === '#343434') ? '#fffbe6' : textColor);
+        text.setAttribute('font-size', '18');
+        text.setAttribute('font-family', 'Montserrat, Arial, sans-serif');
+        text.setAttribute('font-weight', 'bold');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('alignment-baseline', 'middle');
+        // Rotate text so it's always upright
+        let angle = (midAngle * 180 / Math.PI);
+        if (angle > 90 && angle < 270) {
+          angle += 180;
+        }
+        text.setAttribute('transform', `rotate(${angle},${lx},${ly})`);
+        
+        // Adjust text size for many slices
+        if(numPrizes > 10) {
+          text.setAttribute('font-size', '14');
+        }
+        
+        // Break long texts to multiple lines
+        const words = prizes[i].split(' ');
+        if (words.length > 2 && prizes[i].length > 14) {
+          const tspan1 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          const midPoint = Math.ceil(words.length / 2);
+          tspan1.textContent = words.slice(0, midPoint).join(' ');
+          tspan2.textContent = words.slice(midPoint).join(' ');
+          tspan1.setAttribute('x', lx);
+          tspan2.setAttribute('x', lx);
+          tspan1.setAttribute('dy', '-0.6em');
+          tspan2.setAttribute('dy', '1.2em');
+          text.appendChild(tspan1);
+          text.appendChild(tspan2);
+        } else {
+          text.textContent = prizes[i];
+        }
+        
+        wheel.appendChild(text);
+      }
+      
+      // Draw center circle for aesthetics
+      const centerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      centerCircle.setAttribute('cx', center);
+      centerCircle.setAttribute('cy', center);
+      centerCircle.setAttribute('r', 35);
+      centerCircle.setAttribute('fill', "#fffbe6");
+      centerCircle.setAttribute('stroke', borderColor);
+      centerCircle.setAttribute('stroke-width', 3);
+      wheel.appendChild(centerCircle);
+      
+      // Add egg logo in center
+      const eggLogo = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      eggLogo.setAttribute('x', center);
+      eggLogo.setAttribute('y', center + 5);
+      eggLogo.setAttribute('text-anchor', 'middle');
+      eggLogo.setAttribute('alignment-baseline', 'middle');
+      eggLogo.setAttribute('font-size', '20');
+      eggLogo.setAttribute('font-weight', 'bold');
+      eggLogo.setAttribute('fill', '#F9AB00');
+      eggLogo.textContent = "Y&G";
+      wheel.appendChild(eggLogo);
+    }
+
+    // Initial draw
+    drawWheel();
+
+    // Spin logic
+    let spinning = false;
+    let currentRotation = 0;
+
+    document.getElementById('spinBtn').addEventListener('click', function() {
+      if (spinning) return;
+      spinning = true;
+      document.getElementById('result').innerText = '';
+      document.getElementById('result').classList.remove('show-result');
+      const randomIndex = Math.floor(Math.random() * numPrizes);
+      const degreesPerPrize = 360 / numPrizes;
+      // Calculate the rotation so the selected prize lands at the pointer (top)
+      const targetRotation = 360 * 5 + (360 - (randomIndex * degreesPerPrize + degreesPerPrize / 2));
+      const wheelSVG = wheel;
+      wheelSVG.style.transition = 'transform 4s cubic-bezier(.17,.67,.83,.67)';
+      wheelSVG.style.transform = `rotate(${targetRotation}deg)`;
+      currentRotation = targetRotation;
+
+      // Change button text while spinning
+      document.getElementById('spinBtn').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> SPINNING...';
+      document.getElementById('spinBtn').disabled = true;
+
+      setTimeout(() => {
+        spinning = false;
+        const resultEl = document.getElementById('result');
+        resultEl.innerText = `🎉 ${prizes[randomIndex]} 🎉`;
+        resultEl.classList.add('show-result');
+        
+        // Restore button
+        document.getElementById('spinBtn').innerHTML = '<i class="fas fa-sync-alt"></i> SPIN AGAIN';
+        document.getElementById('spinBtn').disabled = false;
+        
+        // Redraw wheel at new rotation for label alignment
+        wheelSVG.style.transition = 'none';
+        wheelSVG.style.transform = `rotate(${targetRotation % 360}deg)`;
+      }, 4100);
+    });
+
+    // Reset wheel transform on page load
+    wheel.style.transform = 'rotate(0deg)';
+
+    // Handle dynamic slice count and prize names
+    function updatePrizesFromInputs() {
+      let val = parseInt(document.getElementById('nameInput').value);
+      if (isNaN(val) || val < 2) val = 2;
+      if (val > 50) val = 50;
+      document.getElementById('nameInput').value = val; // Update displayed value
+      numPrizes = val;
+      
+      const textarea = document.getElementById('prizeNames');
+      const lines = textarea.value.split('\n').map(x => x.trim()).filter(x => x);
+      if (lines.length > 0) {
+        prizes = [];
+        for (let i = 0; i < numPrizes; i++) {
+          prizes.push(lines[i % lines.length]);
+        }
+      } else {
+        prizes = getDefaultPrizes(numPrizes);
+      }
+      
+      drawWheel();
+      wheel.style.transform = 'rotate(0deg)';
+      document.getElementById('result').innerText = '';
+      document.getElementById('result').classList.remove('show-result');
+    }
+
+    document.getElementById('nameInput').addEventListener('input', updatePrizesFromInputs);
+    document.getElementById('prizeNames').addEventListener('input', updatePrizesFromInputs);
+    
+    // Populate text area with default prizes
+    document.getElementById('prizeNames').value = prizes.join('\n');
+  </script>
+</body>
+</html>
